@@ -4,7 +4,7 @@ const { DB } = require('../database/database');
 
 jest.mock('../database/database');
 
-const user = { name: 'pizza diner', email: 'test@test.test', password: 'a', id: 1, roles: [{ role: 'admin' }] };
+const user = { name: 'pizza diner', email: 'a@jwt.com', password: 'admin', id: 1, roles: [{ role: 'admin' }] };
 let userAuthToken;
 let testFranchiseId = 1;
 let testStoreId = 1;
@@ -48,7 +48,7 @@ describe('Franchise API Tests', () => {
   });
 
   test('should create a new franchise', async () => {
-    const newFranchise = { name: 'pizzaKing', admins: [{ email: 'test@test.test' }] };
+    const newFranchise = { name: 'pizzaKing', admins: [{ email: 'a@jwt.com' }] };
     DB.createFranchise.mockResolvedValue({ id: 3, ...newFranchise });
 
     const res = await request(app)

@@ -5,11 +5,11 @@ const { DB } = require('../database/database');
 
 jest.mock('../database/database'); 
 
-const user = { name: 'pizza diner', email: 'test@test.test', password: 'a', id: 1 };
+const user = { name: 'pizza diner', email: 'a@jwt.com', password: 'admin', id: 1 };
 let userAuthToken;
 
 beforeAll(async () => {
-  user.email = `user_${Math.random().toString(36).substring(2, 12)}@test.test`;
+  user.email = `a@jwt.com`;
   DB.addUser.mockResolvedValue({ ...user, roles: [{ role: 'diner' }] });
   DB.loginUser.mockResolvedValue();
   DB.isLoggedIn.mockResolvedValue(true);
@@ -19,7 +19,7 @@ beforeAll(async () => {
 });
 
 test('register user', async () => {
-  const newUser = { name: 'new user', email: `new_${Math.random().toString(36).substring(2, 12)}@test.test`, password: 'password123' };
+  const newUser = { name: 'new user', email: `a@jwt.com`, password: 'admin' };
   DB.addUser.mockResolvedValue({ ...newUser, id: 2, roles: [{ role: 'diner' }] });
 
   const res = await request(app).post('/api/auth').send(newUser);
@@ -37,7 +37,7 @@ test('login an existing user', async () => {
 });
 
 test('update user details', async () => {
-  const updatedUser = { ...user, email: 'updated@test.test' };
+  const updatedUser = { ...user, email: 'a@jwt.com' };
   DB.updateUser.mockResolvedValue(updatedUser);
 
   const res = await request(app)
@@ -49,7 +49,7 @@ test('update user details', async () => {
 });
 
 test('update user without token should fail', async () => {
-  const res = await request(app).put(`/api/auth/${user.id}`).send({ email: 'updated@test.test' });
+  const res = await request(app).put(`/api/auth/${user.id}`).send({ email: 'a@jwt.com' });
   expect(res.status).toBe(401);
   expect(res.body).toMatchObject({ message: 'unauthorized' });
 });

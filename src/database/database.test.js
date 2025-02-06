@@ -3,14 +3,14 @@ const { Role } = require('../model/model');
 
 describe('Database Tests', () => {
   it('should add a user', async () => {
-    const user = { name: 'test user', email: 'test@example.com', password: 'password123', roles: [{ role: Role.Diner }] };
+    const user = { name: 'test user', email: 'a@jwt.com', password: 'admin', roles: [{ role: Role.Diner }] };
     const result = await DB.addUser(user);
     expect(result).toMatchObject({ name: user.name, email: user.email });
   });
 
   it('should get a user', async () => {
-    const email = 'test@example.com';
-    const password = 'password123';
+    const email = 'a@jwt.com';
+    const password = 'admin';
     const result = await DB.getUser(email, password);
     expect(result.email).toBe(email);
   });
@@ -18,7 +18,7 @@ describe('Database Tests', () => {
   it('should update a user', async () => {
     const userId = 1;
     const updatedEmail = 'new.email@example.com';
-    const updatedPassword = 'newPassword123';
+    const updatedPassword = 'admin';
     const result = await DB.updateUser(userId, updatedEmail, updatedPassword);
     expect(result.email).toBe(updatedEmail);
   });
@@ -63,7 +63,7 @@ describe('Database Tests', () => {
   });
 
   it('should create a franchise', async () => {
-    const franchise = { name: `Franchise_${Date.now()}`, admins: [{ email: 'tester@test.test' }] };
+    const franchise = { name: `Franchise_${Date.now()}`, admins: [{ email: 'a@jwt.com' }] };
     const result = await DB.createFranchise(franchise);
     expect(result).toMatchObject({ name: franchise.name });
   });
@@ -88,7 +88,7 @@ describe('Database Tests', () => {
   });
 
 it('should create a store', async () => {
-    const franchise = { name: `Franchise_${Date.now()}`, admins: [{ email: 'tester@test.test' }] };
+    const franchise = { name: `Franchise_${Date.now()}`, admins: [{ email: 'a@jwt.com' }] };
     const createdFranchise = await DB.createFranchise(franchise);
     const franchiseId = createdFranchise.id;
     const store = { name: 'Store' };
@@ -97,7 +97,7 @@ it('should create a store', async () => {
   });
 
   it('should delete a store', async () => {
-    const franchiseData = { name: `Franchise_${Date.now()}`, admins: [{ email: 'tester@test.test' }] };
+    const franchiseData = { name: `Franchise_${Date.now()}`, admins: [{ email: 'a@jwt.com' }] };
     const createdFranchise = await DB.createFranchise(franchiseData);
     const franchiseId = createdFranchise.id;
     const store = { name: 'Store' };
