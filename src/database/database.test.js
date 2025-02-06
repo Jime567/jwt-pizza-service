@@ -71,6 +71,8 @@ describe('Database Tests', () => {
   });
 
   it('should create a franchise', async () => {
+    const admin = { name: 'Test Admin', email: 'a@jwt.com', password: 'password123', roles: [{ role: Role.Admin }] };
+    await DB.addUser(admin);
     const franchise = { name: `Franchise_${Date.now()}`, admins: [{ email: 'a@jwt.com' }] };
     const result = await DB.createFranchise(franchise);
     expect(result).toMatchObject({ name: franchise.name });
@@ -96,6 +98,9 @@ describe('Database Tests', () => {
   });
 
   it('should create a store', async () => {
+    //register an admin
+    const admin = { name: 'Test Admin', email: 'a@jwt.com', password: 'password123', roles: [{ role: Role.Admin }] };
+    await DB.addUser(admin);
     const franchise = { name: `Franchise_${Date.now()}`, admins: [{ email: 'a@jwt.com' }] };
     const createdFranchise = await DB.createFranchise(franchise);
     const franchiseId = createdFranchise.id;
@@ -105,6 +110,8 @@ describe('Database Tests', () => {
   });
 
   it('should delete a store', async () => {
+    const admin = { name: 'Test Admin', email: 'a@jwt.com', password: 'password123', roles: [{ role: Role.Admin }] };
+    await DB.addUser(admin);
     const franchiseData = { name: `Franchise_${Date.now()}`, admins: [{ email: 'a@jwt.com' }] };
     const createdFranchise = await DB.createFranchise(franchiseData);
     const franchiseId = createdFranchise.id;
