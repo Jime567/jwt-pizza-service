@@ -56,6 +56,11 @@ jobs:
               url: 'https://pizza-factory.cs329.click',
               apiKey: '${{ secrets.FACTORY_API_KEY }}',
             },
+            metrics: {
+              source: 'jwt-pizza-service',
+              url: '${{ secrets.METRICS_URL }}',
+              apiKey: '${{ secrets.METRICS_API_KEY }}',
+            },
           };" > src/config.js
 
       - name: Tests
@@ -123,3 +128,22 @@ jobs:
       - name: Deploy new container
         run: |
           aws ecs update-service --cluster jwt-pizza-service --service jwt-pizza-service --force-new-deployment
+  release:
+    needs:
+      - build
+      - deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
+        env:
+          version: ${{needs.build.outputs.version}}
+        with:
+          tag: version-${{ env.version }}
+          name: Version ${{ env.version }}
+          body: |
+            ## 🚀 Changes
+
+            ${{ github.event.head_commit.message }}
+
+            **commit**: ${{ github.sha }}

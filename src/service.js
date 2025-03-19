@@ -1,4 +1,6 @@
 const express = require('express');
+const metrics = require('./metrics');
+
 const { authRouter, setAuthUser } = require('./routes/authRouter.js');
 const orderRouter = require('./routes/orderRouter.js');
 const franchiseRouter = require('./routes/franchiseRouter.js');
@@ -18,11 +20,11 @@ app.use((req, res, next) => {
 
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
-apiRouter.use('/auth', authRouter);
-apiRouter.use('/order', orderRouter);
-apiRouter.use('/franchise', franchiseRouter);
+apiRouter.use('/auth', metrics.track('Auth'), authRouter);
+apiRouter.use('/order', metrics.track('Order'), orderRouter);
+apiRouter.use('/franchise', metrics.track('Franchise'), franchiseRouter);
 
-apiRouter.use('/docs', (req, res) => {
+apiRouter.use('/docs', metrics.track('Docs'), (req, res) => {
   res.json({
     version: version.version,
     endpoints: [...authRouter.endpoints, ...orderRouter.endpoints, ...franchiseRouter.endpoints],
@@ -30,23 +32,26 @@ apiRouter.use('/docs', (req, res) => {
   });
 });
 
-app.get('/', (req, res) => {
+app.get('/', metrics.track('Welcome'), (req, res) => {
   res.json({
     message: 'welcome to JWT Pizza',
     version: version.version,
   });
 });
 
-app.use('*', (req, res) => {
+app.use('*', metrics.track('Unknown 404 Endpoint'), (req, res) => {
   res.status(404).json({
     message: 'unknown endpoint',
   });
 });
 
 // Default error handler for all exceptions and errors.
-app.use((err, req, res, next) => {
+app.use(metrics.track('Error Handler'), (err, req, res, next) => {
   res.status(err.statusCode ?? 500).json({ message: err.message, stack: err.stack });
   next();
 });
+
+// track the metrics
+sendMetricsPeriodically(5000); 
 
 module.exports = app;
