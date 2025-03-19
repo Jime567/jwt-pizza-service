@@ -25,6 +25,12 @@ function track() {
     };
 }
 
+function trackRevenue(price) {
+    if (typeof price === 'number' && price > 0) {
+        sendSumToGrafana('order_revenue_total_btc', price, { currency: 'BTC' });
+    }
+}
+
 function getCpuUsagePercentage() {
     const cpuUsage = os.loadavg()[0] / os.cpus().length;
     return cpuUsage.toFixed(2) * 100;
@@ -84,7 +90,7 @@ async function sendGaugeToGrafana(metricName, metricValue, attributes = {}) {
             },
         });
 
-        console.log(`Metric Sent: ${metricName} = ${metricValue} (Status: ${response.status})`);
+        // console.log(`Metric Sent: ${metricName} = ${metricValue} (Status: ${response.status})`);
         if (!response.ok) {
             const errorResponse = await response.text();
             console.error('Failed to push metrics:', errorResponse);
@@ -140,7 +146,7 @@ async function sendSumToGrafana(metricName, metricValue, attributes = {}) {
             },
         });
 
-        console.log(`Metric Sent: ${metricName} = ${metricValue} (Status: ${response.status})`);
+        // console.log(`Metric Sent: ${metricName} = ${metricValue} (Status: ${response.status})`);
         if (!response.ok) {
             const errorResponse = await response.text();
             console.error('Failed to push metrics:', errorResponse);
@@ -188,4 +194,4 @@ function sendMetricsPeriodically(period) {
     }, period);
 }
 
-module.exports = { track, sendSumToGrafana, sendGaugeToGrafana, sendMetricsPeriodically, requestTypes, trackActiveUser };
+module.exports = { track, trackRevenue, sendSumToGrafana, sendGaugeToGrafana, sendMetricsPeriodically, requestTypes, trackActiveUser };

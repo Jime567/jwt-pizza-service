@@ -77,10 +77,9 @@ authRouter.use((req, res, next) => {
   if (req.user) {
     const userId = req.user.id;
     console.log(`Tracking activity for User ID: ${userId}`);
-    trackActiveUser(userId); // Track active user on each request
+    trackActiveUser(userId); 
   } else {
     sendSumToGrafana('auth_attempt', 1, { event: 'failure' });
-
     console.log('No user found in the request');
   }
 

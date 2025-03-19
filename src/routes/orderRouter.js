@@ -3,7 +3,7 @@ const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
-const { trackActiveUser, sendSumToGrafana } = require('../metrics.js');
+const { trackActiveUser, sendSumToGrafana, trackRevenue } = require('../metrics.js');
 
 const orderRouter = express.Router();
 
@@ -95,6 +95,12 @@ orderRouter.post(
     const startTime = performance.now();
 
     const orderReq = req.body;
+    const price = req.body.items.reduce((acc, item) => acc + item.price, 0);
+    console.log('price', price);
+
+    // Track revenue in BTC
+    trackRevenue(price);
+
     const order = await DB.addDinerOrder(req.user, orderReq);
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: 'POST',
@@ -121,4 +127,5 @@ orderRouter.post(
     }
   })
 );
+
 module.exports = orderRouter;
