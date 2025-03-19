@@ -156,16 +156,16 @@ function sendMetricsPeriodically(period) {
             const cpuUsage = getCpuUsagePercentage();
             const memoryUsage = getMemoryUsagePercentage();
 
-            sendMetricToGrafana('cpu_usage', cpuUsage, { unit: '%' });
-            sendMetricToGrafana('memory_usage', memoryUsage, { unit: '%' });
+            sendGaugeToGrafana('cpu_usage', cpuUsage, { unit: '%' });
+            sendGaugeToGrafana('memory_usage', memoryUsage, { unit: '%' });
 
             // Track the request types
             Object.keys(requestTypes).forEach((method) => {
-                sendMetricToGrafana(`http_requests_${method}`, requestTypes[method], { method });
+                sendGaugeToGrafana(`http_requests_${method}`, requestTypes[method], { method });
             });
 
 
-            sendMetricToGrafana('active_users', Object.keys(userActivity).length, { event: 'active' });
+            sendGaugeToGrafana('active_users', Object.keys(userActivity).length, { event: 'active' });
 
             // Clear all counters after sending metrics
             Object.keys(requestTypes).forEach((method) => {
