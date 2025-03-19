@@ -108,7 +108,7 @@ orderRouter.post(
     const endTime = performance.now();
     
     // Calculate the latency
-    const latency = endTime - startTime; // in milliseconds
+    const latency = endTime - startTime; 
     console.log(`Pizza Latency: ${latency}ms`);
 
     // Send the latency metric to Grafana
