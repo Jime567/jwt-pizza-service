@@ -60,7 +60,7 @@ jobs:
               source: 'jwt-pizza-service',
               url: '${{ secrets.METRICS_URL }}',
               apiKey: '${{ secrets.METRICS_API_KEY }}',
-              userId: `${{ secrets.METRICS_USER_ID }}`,
+              userId: '${{ secrets.METRICS_USER_ID }}',
             },
           };" > src/config.js
 
