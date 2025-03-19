@@ -1,5 +1,5 @@
+const fetch = require('node-fetch');
 const os = require('os');
-
 const config = require('./config');
 
 const requests = {};
@@ -15,7 +15,6 @@ function track() {
     };
 }
 
-
 function getCpuUsagePercentage() {
     const cpuUsage = os.loadavg()[0] / os.cpus().length;
     return cpuUsage.toFixed(2) * 100;
@@ -29,17 +28,13 @@ function getMemoryUsagePercentage() {
     return memoryUsage.toFixed(2);
 }
 
-import fetch from 'node-fetch';
-
 const GRAFANA_URL = `${config.metrics.url}`;
 const API_KEY = `${config.metrics.userId}:${config.metrics.apiKey}`;
 
 async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
     try {
-        // Attach the source to attributes
         attributes.source = "jwt-pizza-service";
 
-        // Build the request payload
         const metricPayload = {
             resourceMetrics: [
                 {
@@ -54,7 +49,7 @@ async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
                                         dataPoints: [
                                             {
                                                 asInt: metricValue,
-                                                timeUnixNano: Date.now() * 1000000, // Convert to nanoseconds
+                                                timeUnixNano: Date.now() * 1000000,
                                                 attributes: Object.keys(attributes).map(key => ({
                                                     key: key,
                                                     value: { stringValue: attributes[key] },
@@ -70,7 +65,6 @@ async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
             ],
         };
 
-        // Send the request
         const response = await fetch(GRAFANA_URL, {
             method: 'POST',
             body: JSON.stringify(metricPayload),
@@ -90,9 +84,6 @@ async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
     }
 }
 
-export { sendMetricToGrafana };
-
-
 function sendMetricsPeriodically(period) {
     setInterval(() => {
         try {
@@ -102,7 +93,6 @@ function sendMetricsPeriodically(period) {
             sendMetricToGrafana('cpu_usage', cpuUsage, { unit: '%' });
             sendMetricToGrafana('memory_usage', memoryUsage, { unit: '%' });
 
-            // Send HTTP method counts
             Object.keys(requestTypes).forEach((method) => {
                 sendMetricToGrafana(`http_requests_${method}`, requestTypes[method], { method });
             });
@@ -113,6 +103,5 @@ function sendMetricsPeriodically(period) {
         }
     }, period);
 }
-
 
 module.exports = { track, sendMetricsPeriodically };
