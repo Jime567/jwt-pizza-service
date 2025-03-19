@@ -107,9 +107,16 @@ authRouter.put(
     }
 
     const auth = await setAuth(user);
-    console.log('auth success');
-    requestTypes.auth_success++;  // Increment on successful authentication
+    if (res.status !== 200) {
+      console.log('auth failure');
+      requestTypes.auth_failure++;  
+    } else {
+      console.log('auth success');
+      requestTypes.auth_success++;
+    }
     res.json({ user: user, token: auth });
+
+
   })
 );
 

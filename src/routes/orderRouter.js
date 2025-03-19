@@ -91,6 +91,9 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    // Record the start time
+    const startTime = performance.now();
+
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
     const r = await fetch(`${config.factory.url}/api/order`, {
@@ -98,7 +101,19 @@ orderRouter.post(
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
       body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
     });
+
     const j = await r.json();
+
+    // Record the end time
+    const endTime = performance.now();
+    
+    // Calculate the latency
+    const latency = endTime - startTime; // in milliseconds
+    console.log(`Pizza Latency: ${latency}ms`);
+
+    // Send the latency metric to Grafana
+    sendMetricToGrafana('pizza_latency', latency, { event: 'create_order' });
+
     if (r.ok) {
       res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });
     } else {
@@ -106,5 +121,4 @@ orderRouter.post(
     }
   })
 );
-
 module.exports = orderRouter;
