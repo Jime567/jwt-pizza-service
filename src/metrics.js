@@ -135,4 +135,4 @@ function sendMetricsPeriodically(period) {
     }, period);
 }
 
-module.exports = { track, sendMetricsPeriodically, requestTypes, trackActiveUser };
+module.exports = { track, sendMetricToGrafana, sendMetricsPeriodically, requestTypes, trackActiveUser };

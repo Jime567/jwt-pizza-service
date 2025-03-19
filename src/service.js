@@ -1,6 +1,6 @@
 const express = require('express');
 const metrics = require('./metrics');
-const { sendMetricsPeriodically } = require('./metrics');
+const { sendMetricsPeriodically, sendMetricToGrafana } = require('./metrics');
 
 
 const { authRouter, setAuthUser } = require('./routes/authRouter.js');
@@ -22,6 +22,28 @@ app.use((req, res, next) => {
 
 const apiRouter = express.Router();
 app.use(metrics.track()); 
+//print out hte request to the console
+app.use((req, res, next) => {
+  console.log();
+  console.log(`Request received: ${req.method} ${req.originalUrl}`);
+  console.log(`Request body: ${JSON.stringify(req.body)}`);
+  console.log();
+  next();
+});
+
+// Track request latency
+app.use((req, res, next) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const latency = Date.now() - start;
+    console.log(`Request latency for ${req.method} ${req.originalUrl}: ${latency}ms`);
+    sendMetricToGrafana('request_latency', latency, { method: req.method, path: req.originalUrl });
+  });
+
+  next();
+});
+
 app.use('/api', apiRouter);
 apiRouter.use('/auth',  authRouter);
 apiRouter.use('/order',  orderRouter);

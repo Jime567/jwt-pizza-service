@@ -99,7 +99,8 @@ authRouter.put(
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
-    if (!user) {
+    console.log('user', user);
+    if (!user){
       console.log('auth failure');
       requestTypes.auth_failure++;  // Increment on failed authentication
       return res.status(401).json({ message: 'Invalid credentials' });

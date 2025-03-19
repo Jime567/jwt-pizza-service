@@ -42,15 +42,12 @@ orderRouter.endpoints = [
 ];
 
 // Tracking middleware for incoming requests
-orderRouter.use((req, res, next) => {
-  console.log(`Request received: ${req.method} ${req.originalUrl}`);
-  
+orderRouter.use((req, res, next) => {  
   if (req.user) {
       const userId = req.user.id;
       console.log(`Tracking activity for User ID: ${userId}`);
       trackActiveUser(userId); // Track active user on each request
   } else {
-      console.log('No user found in the request');
   }
 
   next(); 
