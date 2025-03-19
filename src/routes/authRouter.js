@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
+const { requestTypes } = require('../metrics.js');
 
 const authRouter = express.Router();
 
@@ -83,10 +84,19 @@ authRouter.put(
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
+    if (!user) {
+      console.log('auth failure');
+      requestTypes.auth_failure++;  // Increment on failed authentication
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
     const auth = await setAuth(user);
+    console.log('auth success');
+    requestTypes.auth_success++;  // Increment on successful authentication
     res.json({ user: user, token: auth });
   })
 );
+
 
 // logout
 authRouter.delete(

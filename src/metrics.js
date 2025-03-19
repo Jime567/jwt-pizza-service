@@ -4,7 +4,7 @@ const config = require('./config');
 
 const requests = {};
 
-const requestTypes = { GET: 0, POST: 0, PUT: 0, DELETE: 0 };
+const requestTypes = { GET: 0, POST: 0, PUT: 0, DELETE: 0, auth_success: 0, auth_failure: 0 };
 
 function track() {
     console.log('Tracking metrics...');
@@ -94,11 +94,16 @@ function sendMetricsPeriodically(period) {
             sendMetricToGrafana('cpu_usage', cpuUsage, { unit: '%' });
             sendMetricToGrafana('memory_usage', memoryUsage, { unit: '%' });
 
+            // Track the request types
             Object.keys(requestTypes).forEach((method) => {
                 sendMetricToGrafana(`http_requests_${method}`, requestTypes[method], { method });
             });
 
-            // clear request types
+            // Track auth attempts specifically
+            sendMetricToGrafana('auth_success', requestTypes.auth_success, { event: 'success' });
+            sendMetricToGrafana('auth_failure', requestTypes.auth_failure, { event: 'failure' });
+
+            // Clear all counters after sending metrics
             Object.keys(requestTypes).forEach((method) => {
                 requestTypes[method] = 0;
             });
@@ -110,4 +115,4 @@ function sendMetricsPeriodically(period) {
     }, period);
 }
 
-module.exports = { track, sendMetricsPeriodically };
+module.exports = { track, sendMetricsPeriodically, requestTypes };
