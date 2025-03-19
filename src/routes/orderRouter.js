@@ -3,7 +3,7 @@ const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
-const { trackActiveUser } = require('../metrics.js');
+const { trackActiveUser, sendSumToGrafana } = require('../metrics.js');
 
 const orderRouter = express.Router();
 
@@ -112,7 +112,7 @@ orderRouter.post(
     console.log(`Pizza Latency: ${latency}ms`);
 
     // Send the latency metric to Grafana
-    sendMetricToGrafana('pizza_latency', latency, { event: 'create_order' });
+    sendSumToGrafana('pizza_latency', latency, { event: 'create_order' });
 
     if (r.ok) {
       res.send({ order, reportSlowPizzaToFactoryUrl: j.reportUrl, jwt: j.jwt });

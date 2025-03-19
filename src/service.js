@@ -38,7 +38,7 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const latency = Date.now() - start;
     console.log(`Request latency for ${req.method} ${req.originalUrl}: ${latency}ms`);
-    sendMetricToGrafana('request_latency', latency, { method: req.method, path: req.originalUrl });
+    metrics.sendSumToGrafana('request_latency', latency, { method: req.method, path: req.originalUrl });
   });
 
   next();
