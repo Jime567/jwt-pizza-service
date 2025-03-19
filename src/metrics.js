@@ -48,7 +48,7 @@ async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
                                     gauge: {
                                         dataPoints: [
                                             {
-                                                asInt: metricValue,
+                                                asDouble: metricValue,
                                                 timeUnixNano: Date.now() * 1000000,
                                                 attributes: Object.keys(attributes).map(key => ({
                                                     key: key,
