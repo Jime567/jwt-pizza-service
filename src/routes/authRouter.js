@@ -63,7 +63,7 @@ authRouter.authenticateToken = (req, res, next) => {
     sendMetricToGrafana('auth_attempt', 1, { event: 'failure' });
     console.log('auth failure');
     return res.status(401).send({ message: 'unauthorized' });
-    
+
   } else {
     sendMetricToGrafana('auth_attempt', 1, { event: 'success' });
     console.log('auth success');
@@ -73,16 +73,17 @@ authRouter.authenticateToken = (req, res, next) => {
 
 authRouter.use((req, res, next) => {
   console.log(`Request received: ${req.method} ${req.originalUrl}`);
-  
+
   if (req.user) {
-      const userId = req.user.id;
-      console.log(`Tracking activity for User ID: ${userId}`);
-      trackActiveUser(userId); // Track active user on each request
+    const userId = req.user.id;
+    console.log(`Tracking activity for User ID: ${userId}`);
+    trackActiveUser(userId); // Track active user on each request
   } else {
-      console.log('No user found in the request');
+    sendMetricToGrafana('auth_attempt', 1, { event: 'failure' });
+    console.log('No user found in the request');
   }
 
-  next(); 
+  next();
 });
 
 // register
@@ -106,7 +107,7 @@ authRouter.put(
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
     console.log('user', user);
-    if (!user){
+    if (!user) {
       sendMetricToGrafana('auth_attempt', 1, { event: 'failure' });
       return res.status(401).json({ message: 'Invalid credentials' });
     } else {
