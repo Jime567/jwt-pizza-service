@@ -1,5 +1,7 @@
 const express = require('express');
 const metrics = require('./metrics');
+const { sendMetricsPeriodically } = require('./metrics');
+
 
 const { authRouter, setAuthUser } = require('./routes/authRouter.js');
 const orderRouter = require('./routes/orderRouter.js');
