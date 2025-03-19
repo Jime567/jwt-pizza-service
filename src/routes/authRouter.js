@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
-const { requestTypes } = require('../metrics.js');
+const { requestTypes, sendMetricToGrafana } = require('../metrics.js');
 const { trackActiveUser } = require('../metrics.js');
 
 const authRouter = express.Router();
@@ -60,7 +60,13 @@ async function setAuthUser(req, res, next) {
 // Authenticate token
 authRouter.authenticateToken = (req, res, next) => {
   if (!req.user) {
+    sendMetricToGrafana('auth_attempt', "fail", { event: 'failure' });
+    console.log('auth failure');
     return res.status(401).send({ message: 'unauthorized' });
+    
+  } else {
+    sendMetricToGrafana('auth_attempt', "success", { event: 'success' });
+    console.log('auth success');
   }
   next();
 };
@@ -101,19 +107,13 @@ authRouter.put(
     const user = await DB.getUser(email, password);
     console.log('user', user);
     if (!user){
-      console.log('auth failure');
-      requestTypes.auth_failure++;  // Increment on failed authentication
+      sendMetricToGrafana('auth_attempt', "fail", { event: 'failure' });
       return res.status(401).json({ message: 'Invalid credentials' });
+    } else {
+      sendMetricToGrafana('auth_attempt', "success", { event: 'success' });
     }
 
     const auth = await setAuth(user);
-    if (res.status !== 200) {
-      console.log('auth failure');
-      requestTypes.auth_failure++;  
-    } else {
-      console.log('auth success');
-      requestTypes.auth_success++;
-    }
     res.json({ user: user, token: auth });
 
 

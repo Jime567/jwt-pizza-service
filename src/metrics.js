@@ -108,9 +108,6 @@ function sendMetricsPeriodically(period) {
                 sendMetricToGrafana(`http_requests_${method}`, requestTypes[method], { method });
             });
 
-            // Track auth attempts specifically
-            sendMetricToGrafana('auth_success', requestTypes.auth_success, { event: 'success' });
-            sendMetricToGrafana('auth_failure', requestTypes.auth_failure, { event: 'failure' });
 
             sendMetricToGrafana('active_users', Object.keys(userActivity).length, { event: 'active' });
 
