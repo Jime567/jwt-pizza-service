@@ -2,7 +2,7 @@ const express = require('express');
 const { DB, Role } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { StatusCodeError, asyncHandler } = require('../endpointHelper.js');
-
+const { trackActiveUser } = require('../metrics.js');
 const franchiseRouter = express.Router();
 
 franchiseRouter.endpoints = [
@@ -54,6 +54,20 @@ franchiseRouter.endpoints = [
     response: { message: 'store deleted' },
   },
 ];
+
+franchiseRouter.use((req, res, next) => {
+  console.log(`Request received: ${req.method} ${req.originalUrl}`);
+  
+  if (req.user) {
+      const userId = req.user.id;
+      console.log(`Tracking activity for User ID: ${userId}`);
+      trackActiveUser(userId); // Track active user on each request
+  } else {
+      console.log('No user found in the request');
+  }
+
+  next(); 
+});
 
 // getFranchises
 franchiseRouter.get(

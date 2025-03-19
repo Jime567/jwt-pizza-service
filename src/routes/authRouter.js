@@ -4,6 +4,7 @@ const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
 const { requestTypes } = require('../metrics.js');
+const { trackActiveUser } = require('../metrics.js');
 
 const authRouter = express.Router();
 
@@ -63,6 +64,20 @@ authRouter.authenticateToken = (req, res, next) => {
   }
   next();
 };
+
+authRouter.use((req, res, next) => {
+  console.log(`Request received: ${req.method} ${req.originalUrl}`);
+  
+  if (req.user) {
+      const userId = req.user.id;
+      console.log(`Tracking activity for User ID: ${userId}`);
+      trackActiveUser(userId); // Track active user on each request
+  } else {
+      console.log('No user found in the request');
+  }
+
+  next(); 
+});
 
 // register
 authRouter.post(

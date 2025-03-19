@@ -6,6 +6,15 @@ const requests = {};
 
 const requestTypes = { GET: 0, POST: 0, PUT: 0, DELETE: 0, auth_success: 0, auth_failure: 0 };
 
+const userActivity = {}; 
+
+//track users
+function trackActiveUser(userId) {
+    const now = Date.now();
+    userActivity[userId] = now;
+    console.log(`User ${userId} activity updated: ${now}`);
+}
+
 function track() {
     console.log('Tracking metrics...');
     return (req, res, next) => {
@@ -103,16 +112,27 @@ function sendMetricsPeriodically(period) {
             sendMetricToGrafana('auth_success', requestTypes.auth_success, { event: 'success' });
             sendMetricToGrafana('auth_failure', requestTypes.auth_failure, { event: 'failure' });
 
+            sendMetricToGrafana('active_users', Object.keys(userActivity).length, { event: 'active' });
+
             // Clear all counters after sending metrics
             Object.keys(requestTypes).forEach((method) => {
                 requestTypes[method] = 0;
             });
 
-            console.log('Metrics sent successfully');
+            // clear active users older than 4 minutes
+            const fourMinutesAgo = Date.now() - 4 * 60 * 1000;
+            for (const userId in userActivity) {
+                if (userActivity[userId] < fourMinutesAgo) {
+                    console.log(`User ${userId} is inactive, removing from active users.`);
+                    delete userActivity[userId];
+                } 
+            }
+            console.log('Active users:', Object.keys(userActivity).length);
+
         } catch (error) {
             console.error('Error sending metrics:', error);
         }
     }, period);
 }
 
-module.exports = { track, sendMetricsPeriodically, requestTypes };
+module.exports = { track, sendMetricsPeriodically, requestTypes, trackActiveUser };

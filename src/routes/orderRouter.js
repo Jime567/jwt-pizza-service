@@ -3,6 +3,7 @@ const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
+const { trackActiveUser } = require('../metrics.js');
 
 const orderRouter = express.Router();
 
@@ -39,6 +40,22 @@ orderRouter.endpoints = [
     response: { order: { franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: 'Veggie', price: 0.05 }], id: 1 }, jwt: '1111111111' },
   },
 ];
+
+// Tracking middleware for incoming requests
+orderRouter.use((req, res, next) => {
+  console.log(`Request received: ${req.method} ${req.originalUrl}`);
+  
+  if (req.user) {
+      const userId = req.user.id;
+      console.log(`Tracking activity for User ID: ${userId}`);
+      trackActiveUser(userId); // Track active user on each request
+  } else {
+      console.log('No user found in the request');
+  }
+
+  next(); 
+});
+
 
 // getMenu
 orderRouter.get(
