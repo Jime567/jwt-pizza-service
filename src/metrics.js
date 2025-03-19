@@ -109,8 +109,8 @@ async function sendSumToGrafana(metricName, metricValue, attributes = {}) {
                                     unit: '1',
                                     description: '',
                                     sum: {
-                                        aggregationTemporality: 2, // Cumulative counter
-                                        isMonotonic: true, // Ensures it only increases
+                                        aggregationTemporality: 2, 
+                                        isMonotonic: true,
                                         dataPoints: [
                                             {
                                                 asDouble: metricValue,
