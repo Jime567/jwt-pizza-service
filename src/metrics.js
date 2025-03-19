@@ -7,6 +7,7 @@ const requests = {};
 const requestTypes = { GET: 0, POST: 0, PUT: 0, DELETE: 0 };
 
 function track() {
+    console.log('Tracking metrics...');
     return (req, res, next) => {
         if (requestTypes[req.method] !== undefined) {
             requestTypes[req.method]++;
@@ -95,6 +96,11 @@ function sendMetricsPeriodically(period) {
 
             Object.keys(requestTypes).forEach((method) => {
                 sendMetricToGrafana(`http_requests_${method}`, requestTypes[method], { method });
+            });
+
+            // clear request types
+            Object.keys(requestTypes).forEach((method) => {
+                requestTypes[method] = 0;
             });
 
             console.log('Metrics sent successfully');
