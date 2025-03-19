@@ -41,7 +41,7 @@ function getMemoryUsagePercentage() {
 const GRAFANA_URL = `${config.metrics.url}`;
 const API_KEY = `${config.metrics.userId}:${config.metrics.apiKey}`;
 
-async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
+async function sendGaugeToGrafana(metricName, metricValue, attributes = {}) {
     try {
         attributes.source = "jwt-pizza-service";
 
@@ -67,6 +67,62 @@ async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
                                             },
                                         ],
                                     },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+
+        const response = await fetch(GRAFANA_URL, {
+            method: 'POST',
+            body: JSON.stringify(metricPayload),
+            headers: {
+                'Authorization': `Bearer ${API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log(`Metric Sent: ${metricName} = ${metricValue} (Status: ${response.status})`);
+        if (!response.ok) {
+            const errorResponse = await response.text();
+            console.error('Failed to push metrics:', errorResponse);
+        }
+    } catch (error) {
+        console.error('Error sending metric:', error);
+    }
+}
+
+async function sendSumToGrafana(metricName, metricValue, attributes = {}) {
+    try {
+        attributes.source = "jwt-pizza-service";
+
+        const metricPayload = {
+            resourceMetrics: [
+                {
+                    scopeMetrics: [
+                        {
+                            metrics: [
+                                {
+                                    name: metricName,
+                                    unit: '1',
+                                    description: '',
+                                    sum: {
+                                        aggregationTemporality: 2, // Cumulative counter
+                                        isMonotonic: true, // Ensures it only increases
+                                        dataPoints: [
+                                            {
+                                                asDouble: metricValue,
+                                                timeUnixNano: Date.now() * 1000000,
+                                                attributes: Object.keys(attributes).map(key => ({
+                                                    key: key,
+                                                    value: { stringValue: attributes[key] },
+                                                })),
+                                            },
+                                        ],
+                                    },
+                                    
                                 },
                             ],
                         },
@@ -132,4 +188,4 @@ function sendMetricsPeriodically(period) {
     }, period);
 }
 
-module.exports = { track, sendMetricToGrafana, sendMetricsPeriodically, requestTypes, trackActiveUser };
+module.exports = { track, sendSumToGrafana, sendGaugeToGrafana, sendMetricsPeriodically, requestTypes, trackActiveUser };
