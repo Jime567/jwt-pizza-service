@@ -29,60 +29,69 @@ function getMemoryUsagePercentage() {
     return memoryUsage.toFixed(2);
 }
 
-function sendMetricToGrafana(metricName, metricValue, attributes) {
-    attributes = { ...attributes, source: config.source };
+import fetch from 'node-fetch';
 
-    const metric = {
-        resourceMetrics: [
-            {
-                scopeMetrics: [
-                    {
-                        metrics: [
-                            {
-                                name: metricName,
-                                unit: '1',
-                                sum: {
-                                    dataPoints: [
-                                        {
-                                            asInt: metricValue,
-                                            timeUnixNano: Date.now() * 1000000,
-                                            attributes: [],
-                                        },
-                                    ],
-                                    aggregationTemporality: 'AGGREGATION_TEMPORALITY_CUMULATIVE',
-                                    isMonotonic: true,
+const GRAFANA_URL = `${config.metrics.url}`;
+const API_KEY = `${config.metrics.userId}:${config.metrics.apiKey}`;
+
+async function sendMetricToGrafana(metricName, metricValue, attributes = {}) {
+    try {
+        // Attach the source to attributes
+        attributes.source = "jwt-pizza-service";
+
+        // Build the request payload
+        const metricPayload = {
+            resourceMetrics: [
+                {
+                    scopeMetrics: [
+                        {
+                            metrics: [
+                                {
+                                    name: metricName,
+                                    unit: '1',
+                                    description: '',
+                                    gauge: {
+                                        dataPoints: [
+                                            {
+                                                asInt: metricValue,
+                                                timeUnixNano: Date.now() * 1000000, // Convert to nanoseconds
+                                                attributes: Object.keys(attributes).map(key => ({
+                                                    key: key,
+                                                    value: { stringValue: attributes[key] },
+                                                })),
+                                            },
+                                        ],
+                                    },
                                 },
-                            },
-                        ],
-                    },
-                ],
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+
+        // Send the request
+        const response = await fetch(GRAFANA_URL, {
+            method: 'POST',
+            body: JSON.stringify(metricPayload),
+            headers: {
+                'Authorization': `Bearer ${API_KEY}`,
+                'Content-Type': 'application/json',
             },
-        ],
-    };
-
-    Object.keys(attributes).forEach((key) => {
-        metric.resourceMetrics[0].scopeMetrics[0].metrics[0].sum.dataPoints[0].attributes.push({
-            key: key,
-            value: { stringValue: attributes[key] },
         });
-    });
 
-    fetch(`${config.url}`, {
-        method: 'POST',
-        body: JSON.stringify(metric),
-        headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
-    })
-        .then((response) => {
-            if (!response.ok) {
-                console.error('Failed to push metrics data to Grafana');
-            } else {
-                console.log(`Pushed ${metricName}`);
-            }
-        })
-        .catch((error) => {
-            console.error('Error pushing metrics:', error);
-        });
+        console.log(`Metric Sent: ${metricName} = ${metricValue} (Status: ${response.status})`);
+        if (!response.ok) {
+            const errorResponse = await response.text();
+            console.error('Failed to push metrics:', errorResponse);
+        }
+    } catch (error) {
+        console.error('Error sending metric:', error);
+    }
 }
+
+export { sendMetricToGrafana };
+
 
 function sendMetricsPeriodically(period) {
     setInterval(() => {
