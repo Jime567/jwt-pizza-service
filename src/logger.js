@@ -80,7 +80,7 @@ class Logger {
       },
     }).then((res) => {
       res.text().then((text) => {
-        console.log('Failed to send log to Grafana: ' + JSON.stringify(JSON.parse(text), null, 2));
+        console.log('Failed to send log to Grafana: ');
       });
     
     });
