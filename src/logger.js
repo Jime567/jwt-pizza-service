@@ -48,11 +48,16 @@ class Logger {
 
   // Factory service requests
   factoryLogger = (url, method, body) => {
+    console.log('Factory Logger called');
     const logData = { url: url, method: method, body: JSON.stringify(body) };
     this.log('info', 'factory', logData);
   }
 
   // Unhandled exceptions
+  exceptionLogger = (error) => {
+    const logData = { message: error.message, stack: error.stack };
+    this.log('error', 'exception', logData);
+  }
 
   nowString() {
     return (Math.floor(Date.now()) * 1000000).toString();
