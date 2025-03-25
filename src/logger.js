@@ -67,6 +67,9 @@ class Logger {
   }
 
   sendLogToGrafana(event) {
+    console.log('Sending log to Grafana: ' + JSON.stringify(event));
+    console.log('URL: ' + config.logs.url);
+    console.log('Authorization: ' + `Bearer ${config.logs.userId}:${config.logs.apiKey}`);
     const body = JSON.stringify(event);
     fetch(`${config.logs.url}`, {
       method: 'post',
@@ -76,7 +79,9 @@ class Logger {
         Authorization: `Bearer ${config.logs.userId}:${config.logs.apiKey}`,
       },
     }).then((res) => {
-      if (!res.ok) console.log('Failed to send log to Grafana: ' + res.body);
+      res.text().then((text) => {
+        console.log('Failed to send log to Grafana: ' + JSON.stringify(JSON.parse(text), null, 2));
+      });
     
     });
   }
