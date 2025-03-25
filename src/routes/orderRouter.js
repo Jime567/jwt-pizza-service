@@ -48,7 +48,7 @@ orderRouter.endpoints = [
 orderRouter.use((req, res, next) => {  
   if (req.user) {
       const userId = req.user.id;
-      console.log(`Tracking activity for User ID: ${userId}`);
+      // console.log(`Tracking activity for User ID: ${userId}`);
       trackActiveUser(userId); // Track active user on each request
   } else {
   }
@@ -105,6 +105,7 @@ orderRouter.post(
     trackRevenue(price);
 
     const order = await DB.addDinerOrder(req.user, orderReq);
+    logger.factoryLogger(`${config.factory.url}/api/order`, { diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order });
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },

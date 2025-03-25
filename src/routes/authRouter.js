@@ -68,17 +68,17 @@ authRouter.authenticateToken = (req, res, next) => {
 
   } else {
     sendSumToGrafana('auth_attempt', 1, { event: 'success' });
-    console.log('auth success');
+    // console.log('auth success');
   }
   next();
 };
 
 authRouter.use((req, res, next) => {
-  console.log(`Request received: ${req.method} ${req.originalUrl}`);
+  // console.log(`Request received: ${req.method} ${req.originalUrl}`);
 
   if (req.user) {
     const userId = req.user.id;
-    console.log(`Tracking activity for User ID: ${userId}`);
+    // console.log(`Tracking activity for User ID: ${userId}`);
     trackActiveUser(userId); 
   } else {
     sendSumToGrafana('auth_attempt', 1, { event: 'failure' });

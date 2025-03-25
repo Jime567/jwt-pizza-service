@@ -39,8 +39,18 @@ class Logger {
 
   // Databases Requests 
   // sql queries
-  // databaseLogger = ()
+  databaseLogger = (sql, params) => {
+    // convert params to string
+    params = JSON.stringify(params);
+    const logData = { sql: sql, params: params };
+    this.log('info', 'database', logData);
+  };
+
   // Factory service requests
+  factoryLogger = (url, method, body) => {
+    const logData = { url: url, method: method, body: JSON.stringify(body) };
+    this.log('info', 'factory', logData);
+  }
 
   // Unhandled exceptions
 

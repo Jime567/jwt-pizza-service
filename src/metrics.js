@@ -12,7 +12,7 @@ const userActivity = {};
 function trackActiveUser(userId) {
     const now = Date.now();
     userActivity[userId] = now;
-    console.log(`User ${userId} activity updated: ${now}`);
+    // console.log(`User ${userId} activity updated: ${now}`);
 }
 
 function track() {

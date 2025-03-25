@@ -59,11 +59,11 @@ franchiseRouter.endpoints = [
 franchiseRouter.use(logger.httpLogger);
 
 franchiseRouter.use((req, res, next) => {
-  console.log(`Request received: ${req.method} ${req.originalUrl}`);
+  // console.log(`Request received: ${req.method} ${req.originalUrl}`);
   
   if (req.user) {
       const userId = req.user.id;
-      console.log(`Tracking activity for User ID: ${userId}`);
+      // console.log(`Tracking activity for User ID: ${userId}`);
       trackActiveUser(userId); // Track active user on each request
   } else {
       console.log('No user found in the request');
