@@ -4,8 +4,11 @@ const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
 const { trackActiveUser, sendSumToGrafana, trackRevenue } = require('../metrics.js');
+const logger = require('../logger.js');
 
 const orderRouter = express.Router();
+console.log(logger);
+orderRouter.use(logger.httpLogger);
 
 orderRouter.endpoints = [
   {

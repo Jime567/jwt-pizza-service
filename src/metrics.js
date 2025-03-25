@@ -186,7 +186,7 @@ function sendMetricsPeriodically(period) {
                     delete userActivity[userId];
                 } 
             }
-            console.log('Active users:', Object.keys(userActivity).length);
+            // console.log('Active users:', Object.keys(userActivity).length);
 
         } catch (error) {
             console.error('Error sending metrics:', error);

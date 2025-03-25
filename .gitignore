@@ -6,3 +6,4 @@ coverage
 dist
 metrics.json
 traffic.sh
+config.json

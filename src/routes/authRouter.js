@@ -5,8 +5,10 @@ const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
 const { requestTypes, sendSumToGrafana } = require('../metrics.js');
 const { trackActiveUser } = require('../metrics.js');
+const logger = require('../logger.js');
 
 const authRouter = express.Router();
+authRouter.use(logger.httpLogger);
 
 authRouter.endpoints = [
   {

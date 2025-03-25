@@ -4,6 +4,7 @@ const { authRouter } = require('./authRouter.js');
 const { StatusCodeError, asyncHandler } = require('../endpointHelper.js');
 const { trackActiveUser } = require('../metrics.js');
 const franchiseRouter = express.Router();
+const logger = require('../logger.js');
 
 franchiseRouter.endpoints = [
   {
@@ -54,6 +55,8 @@ franchiseRouter.endpoints = [
     response: { message: 'store deleted' },
   },
 ];
+
+franchiseRouter.use(logger.httpLogger);
 
 franchiseRouter.use((req, res, next) => {
   console.log(`Request received: ${req.method} ${req.originalUrl}`);
