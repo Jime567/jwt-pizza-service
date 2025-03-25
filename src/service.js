@@ -1,7 +1,6 @@
 const express = require('express');
 const metrics = require('./metrics');
 const { sendMetricsPeriodically, sendMetricToGrafana } = require('./metrics');
-const config = require('./config');
 
 const { authRouter, setAuthUser } = require('./routes/authRouter.js');
 const orderRouter = require('./routes/orderRouter.js');
