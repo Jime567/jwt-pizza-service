@@ -47,22 +47,16 @@ async function setAuthUser(req, res, next) {
   const token = readAuthToken(req);
   if (token) {
     try {
-      const decoded = jwt.verify(token, config.jwtSecret);
-
-      const stillLoggedIn = await DB.isLoggedIn(token);
-      if (!stillLoggedIn) {
-        return res.status(401).send({ message: 'token expired or invalidated' });
+      if (await DB.isLoggedIn(token)) {
+        // Check the database to make sure the token is valid.
+        req.user = jwt.verify(token, config.jwtSecret);
+        req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
       }
-
-      req.user = decoded;
-      req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
-      next();
     } catch {
       req.user = null;
-      // stop it from continuing
-      return res.status(401).send({ message: 'unauthorized' });
     }
   }
+  next();
 }
 
 // Authenticate token
