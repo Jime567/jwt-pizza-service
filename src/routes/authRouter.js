@@ -47,18 +47,22 @@ async function setAuthUser(req, res, next) {
   const token = readAuthToken(req);
   if (token) {
     try {
-      if (await DB.isLoggedIn(token)) {
-        // Check the database to make sure the token is valid.
-        req.user = jwt.verify(token, config.jwtSecret);
-        req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
+      const decoded = jwt.verify(token, config.jwtSecret);
+
+      const stillLoggedIn = await DB.isLoggedIn(token);
+      if (!stillLoggedIn) {
+        return res.status(401).send({ message: 'token expired or invalidated' });
       }
+
+      req.user = decoded;
+      req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
+      next();
     } catch {
       req.user = null;
       // stop it from continuing
       return res.status(401).send({ message: 'unauthorized' });
     }
   }
-  next();
 }
 
 // Authenticate token
@@ -81,7 +85,7 @@ authRouter.use((req, res, next) => {
   if (req.user) {
     const userId = req.user.id;
     // console.log(`Tracking activity for User ID: ${userId}`);
-    trackActiveUser(userId); 
+    trackActiveUser(userId);
   } else {
     sendSumToGrafana('auth_attempt', 1, { event: 'failure' });
     console.log('No user found in the request');
